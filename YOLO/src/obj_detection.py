@@ -3,7 +3,7 @@ from codecs import escape_encode
 from concurrent.futures.process import EXTRA_QUEUED_CALLS
 from glob import escape
 from tkinter.tix import MAIN
-from turtle import color
+from turtle import color, width
 import pandas as pd
 from pip import main
 import numpy as np
@@ -55,12 +55,70 @@ class objdetector:
             print("RUN FUNC ERR {0}".format(e))
 
     def yolo_init(self):
-        net = cv2.dnn.readNet("YOLO/model/yolov3.weights", "YOLO/cfg/yolov3.cfg")
-        classes = []
-        with open("YOLO/cfg/coco.names", 'r') as f:
-            classes = [line.strip() for line in f.readlines()]
-        self.layer_names = net.getLayerNames()
-        self.output_layers = [self.layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
+        try:
+            # make neural network from model file and config file
+            print("yolo init start...")
+            net = cv2.dnn.readNet("YOLO/model/yolov3.weights", "YOLO/cfg/yolov3.cfg")
+            classes = []
+            with open("YOLO/cfg/coco.names", 'r') as f:
+                classes = [line.strip() for line in f.readlines()]
+            self.layer_names = net.getLayerNames()
+            print(net.getUnconnectedOutLayers())
+            self.output_layers = [self.layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+            
+            img = self.loadImage('YOLO/contents/training_images/vid_4_10000.jpg')
+            img = self.setImageRGB(img)
+            height, width, channels = img.shape
+
+            # convert image to 4D matrix object
+            blob = cv2.dnn.blobFromImage(img, 1/256, BLOB_NONAL_SIZE, (0,0,0), swapRB=True, crop=False)
+            # input the object to neural network
+            net.setInput(blob)
+            # run the neural network forward
+            outs = net.forward(self.output_layers)
+
+            # show the infomation to screen
+            class_ids = []
+            confidences = []
+            boxes = []
+
+            for out in outs:
+                for detection in out:
+                    scores = detection[5:]
+                    class_id = np.argmax(scores)
+                    confidence = scores[class_id]
+                    if confidence > 0.5:
+                        # object detected
+                        center_x = int(detection[0] * width)
+                        center_y = int(detection[1] * height)
+                        w = int(detection[2] * width)
+                        h = int(detection[3] * height)
+                        # coordinate
+                        x = int(center_x - w / 2)
+                        y = int(center_y - h / 2)
+                        boxes.append([x,y,w,h])
+                        confidences.append(float(confidence))
+                        class_ids.append(class_id)
+            
+            indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)
+
+            # Show to screen from extracted information
+            font = cv2.FONT_HERSHEY_PLAIN
+            colors = np.random.uniform(0,255, size=(len(boxes), 3))
+
+            for i in indexes.flatten():
+                x, y ,w, h = boxes[i]
+                print(x, y, w, h)
+                label = str(classes[class_ids[i]])
+                confidence = str(round(confidences[i], 2))
+                color = colors[i]
+                cv2.rectangle(img, (x,y), ((x+w), (y+h)), color, 2)
+                cv2.putText(img, label + " " + confidence, (x, y+20), font, 2, (0,255,0), 2)
+            
+            plt.imshow(img)
+            plt.show()
+        except Exception as e:
+            print("YOLO_INIT FUNC ERR {0}".format(e))
 
     def loadCsv(self, csv_file):
         try:
@@ -146,7 +204,7 @@ class objdetector:
 if __name__ == '__main__':
     try:
         od = objdetector()
-        od.run()
+        od.yolo_init()
 
     except Exception as e:
         print("MAIN FUNC ERR {0}".format(e))
