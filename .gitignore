@@ -1,5 +1,5 @@
 .vscode/
-
+*.pyc
 test.py
 venv/
 YOLO/contents/testing_images/
