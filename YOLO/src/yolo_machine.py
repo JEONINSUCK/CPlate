@@ -1,18 +1,12 @@
-from ast import Constant, expr_context
-from codecs import escape_encode
-from concurrent.futures.process import EXTRA_QUEUED_CALLS
-from glob import escape
-from tkinter.tix import MAIN
-from turtle import color, width
-import pandas as pd
-from pip import main
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import os
 
-from error import ERRORCODE
-from src.image_process import imageProc
+try:
+    from error_proc import ERRORCODE
+    from img_proc import imageProc
+except ImportError:
+    from src.error_proc import ERRORCODE
+    from src.img_proc import imageProc
 
 DEBUG = 1
 
@@ -32,7 +26,7 @@ class machine:
         self.confidences = []
         self.boxes = []
 
-        improc = imageProc()
+        self.improc = imageProc()
 
     def yolo_init(self):
         try:
@@ -52,12 +46,12 @@ class machine:
     def yolo_run(self, img):
         try:
             self.log("yolo running...")
-            self.yolo_image = improc.loadImage(img)
-            self.yolo_image = improc.setImageRGB(self.yolo_image)
+            self.yolo_image = self.improc.loadImage(img)
+            self.yolo_image = self.improc.setImageRGB(self.yolo_image)
             height, width, channels = self.yolo_image.shape
 
             # convert image to 4D matrix object
-            blob = cv2.dnn.blobFromImage(img, BLOB_SCALE_FACTOR, BLOB_NONAL_SIZE, BLOB_MEAN, swapRB=True, crop=False)
+            blob = cv2.dnn.blobFromImage(self.yolo_image, BLOB_SCALE_FACTOR, BLOB_NONAL_SIZE, BLOB_MEAN, swapRB=True, crop=False)
             # input the object to neural network
             self.net.setInput(blob)
             # run the neural network forward
@@ -86,6 +80,15 @@ class machine:
 
         except Exception as e:
             print("YOLO_RUN FUNC ERR {0}".format(e))
+
+    def getClassName(self):
+        try:
+            if (len(self.classes) > 0):
+                return self.classes
+            else:
+                return ERRORCODE._FAIL
+        except Exception as e:
+            print("GETCLASSNAME FUNC ERR {0}".format(e))
 
     def getClassIdx(self):
         try:
@@ -132,8 +135,9 @@ if __name__ == '__main__':
     try:
         pass
         test = machine()
-        test.yolo_init()
-        test.yolo_run('YOLO/contents/training_images/vid_4_10000.jpg')
+        # test.yolo_init()
+        # test.yolo_run('YOLO/contents/training_images/vid_4_10000.jpg')
+        print(test.getConfid())
 
     except Exception as e:
         print("MAIN FUNC ERR {0}".format(e))

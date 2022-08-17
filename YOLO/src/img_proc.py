@@ -93,9 +93,9 @@ class imageProc:
         except Exception as e:
             print("SETIMAGELAB FUNC ERR {0}".format(e))
     
-    def imageShow(self):
+    def imageShow(self, img):
         try:
-            plt.imshow(self.single_image)
+            plt.imshow(img)
             plt.show()
         except Exception as e:
             print("IMAGESHOW FUNC ERR {0}".format(e))
