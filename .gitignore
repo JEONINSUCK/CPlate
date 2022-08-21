@@ -260,3 +260,5 @@ cython_debug/
 test.py
 venv/
 virtual.*
+YOLO/contents/testing_images/
+YOLO/contents/training_images/
