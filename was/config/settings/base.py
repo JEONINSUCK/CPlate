@@ -1,20 +1,27 @@
 from pathlib import Path
 import os
+from unittest.mock import DEFAULT
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# admin site
+ADMIN_SITE_HEADER = 'CPlate CMS Center'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'kiss,dry,yagni'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+ALLOWED_HOSTS =  ['localhost', '127.0.0.1']
 
 ALLOWED_HOSTS = ['*']
-
+ROOT_HOSTCONF = 'url'
+DEFAULT_HOST = 'www'
 
 # Application definition
 # 프로젝트에서 사용할 앱들의 경로가 위치하는 영역, user defined app의 경로도 이 항목에 포함된다.
 INSTALLED_APPS = [
+    # 'common.apps.CommonConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -24,10 +31,12 @@ INSTALLED_APPS = [
     # custom
     'drf_yasg',
     'rest_framework',
+    # 'django_hosts'
 ]
 
 # 공통적으로 들어가는 html 코드를 관리하기 위한 확장형 template 들의 경로를 설정하는 영역
 MIDDLEWARE = [
+    # 'django_hosts.middleware.HostsRequestMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -35,6 +44,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'django_hosts.middleware.HostsResponseMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -107,6 +117,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+AUTH_USER_MODEL = 'user.User'

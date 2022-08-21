@@ -24,6 +24,7 @@
     -p 5432:5432 \
     -e POSTGRES_PASSWORD=cplate \
   	postgres
+    
 
 
 
@@ -47,5 +48,10 @@ pip3 freeze > requirements.txt
 
 # install
 pip install -r requirements.txt
+python manage cratesuperuser
+
+
+# 계정 생성도 해야 함
+
 
 ```
