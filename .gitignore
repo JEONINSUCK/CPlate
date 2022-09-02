@@ -4,3 +4,4 @@ test.py
 venv/
 YOLO/contents/testing_images/
 YOLO/contents/training_images/
+YOLO/contents/sample_submission/
