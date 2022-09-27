@@ -1,27 +1,15 @@
-from ast import Constant, expr_context
-from codecs import escape_encode
-from concurrent.futures.process import EXTRA_QUEUED_CALLS
-from glob import escape
-from tkinter.tix import MAIN
-from turtle import color
-import pandas as pd
-from pip import main
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
-import os
+import pandas as pd
 
 COLOR_GREEN = (0,255,0)
 COLOR_RED = (255,0,0)
 COLOR_BLUE = (0,0,255)
-BLOB_FAST_SIZE = (320, 320)
-BLOB_NONAL_SIZE = (416, 416)
-BLOB_SLOW_SIZE = (609, 609)
 THICKNESS = 2
 IMAGE_QUNTITY = 3
 
-
-class objdetector:
+class imageProc:
     def __init__(self) -> None:
         self.csv_image = None
         self.single_image = None
@@ -31,36 +19,6 @@ class objdetector:
         self.csv_columns = []
         self.csv_columns_idx = 0
         self.foreign_key_idx = 0
-        self.layer_names = None
-        self.output_layers = None
-
-        self.yolo_init()
-    
-    def run(self):
-        try:
-            od.loadCsv('YOLO/contents/train_solution_bounding_boxes.csv')
-            od.csvPaser()
-            for i in range(IMAGE_QUNTITY):
-                path = 'YOLO/contents/training_images/' + self.csv_rows[i]
-                print(path)
-                self.single_image = self.loadImage(path)
-                self.single_image = self.setImageRGB(self.single_image)
-                height, width, channels = self.single_image.shape
-                point = self.csv_data.iloc[i]
-                pt1 = (int(point['xmin']), int(point['ymax']))
-                pt2 = (int(point['xmax']), int(point['ymin']))
-                cv2.rectangle(self.single_image, pt1, pt2, color=COLOR_GREEN, thickness=THICKNESS)
-                self.imageShow()
-        except Exception as e:
-            print("RUN FUNC ERR {0}".format(e))
-
-    def yolo_init(self):
-        net = cv2.dnn.readNet("YOLO/model/yolov3.weights", "YOLO/cfg/yolov3.cfg")
-        classes = []
-        with open("YOLO/cfg/coco.names", 'r') as f:
-            classes = [line.strip() for line in f.readlines()]
-        self.layer_names = net.getLayerNames()
-        self.output_layers = [self.layer_names[i[0] - 1] for i in net.getUnconnectedOutLayers()]
 
     def loadCsv(self, csv_file):
         try:
@@ -135,18 +93,29 @@ class objdetector:
         except Exception as e:
             print("SETIMAGELAB FUNC ERR {0}".format(e))
     
-    def imageShow(self):
+    def imageShow(self, img):
         try:
-            plt.imshow(self.single_image)
+            plt.imshow(img)
             plt.show()
         except Exception as e:
             print("IMAGESHOW FUNC ERR {0}".format(e))
-
+        
 
 if __name__ == '__main__':
     try:
-        od = objdetector()
-        od.run()
-
+        improc = imageProc()
+        improc.loadCsv('YOLO/contents/train_solution_bounding_boxes.csv')
+        improc.csvPaser()
+        for i in range(IMAGE_QUNTITY):
+            path = 'YOLO/contents/training_images/' + improc.csv_rows[i]
+            print(path)
+            improc.single_image = improc.loadImage(path)
+            improc.single_image = improc.setImageRGB(improc.single_image)
+            height, width, channels = improc.single_image.shape
+            point = improc.csv_data.iloc[i]
+            pt1 = (int(point['xmin']), int(point['ymax']))
+            pt2 = (int(point['xmax']), int(point['ymin']))
+            cv2.rectangle(improc.single_image, pt1, pt2, color=COLOR_GREEN, thickness=THICKNESS)
+            improc.imageShow()
     except Exception as e:
-        print("MAIN FUNC ERR {0}".format(e))
+        print("RUN FUNC ERR {0}".format(e))

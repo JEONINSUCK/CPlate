@@ -256,9 +256,13 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,django
 
 .vscode/
-
+*.pyc
 test.py
 venv/
 virtual.*
 YOLO/contents/testing_images/
 YOLO/contents/training_images/
+<<<<<<< HEAD
+=======
+YOLO/contents/sample_submission/
+>>>>>>> origin/jis
